@@ -19,7 +19,7 @@ class obtainProxy:
         self.ou = ou
 
     def obtain(self):
-        print("\033[36m" + "[INFO][PS] Obtaining Proxy addresses from OU: '"+self.ou+"'")
+        print("[INFO][PS] Obtaining Proxy addresses from OU: '"+self.ou+"'")
         pscommand = 'Get-ADUser -Filter * -SearchBase "' + self.ou + '" -Properties UserPrincipalName, ProxyAddresses | Select-Object UserPrincipalName, @{Name="ProxyAddresses";Expression={$_.ProxyAddresses -join ";"}} | ConvertTo-Json -Compress'
         command_output = subprocess.check_output(['powershell', '-Command', pscommand]).decode('utf-8')
         users = json.loads(command_output)
@@ -30,6 +30,24 @@ def genReport(data, type = "txt"):
         txtname = "proxyreport_" + timestamp + ".txt"
         with open(txtname, 'w') as file:
             file.write(data)
+
+print("You'll need to put the O365 JSON file in the same directory as this application")
+print("1) Open Powershell")
+print("2) Connect-ExchangeOnline")
+print("3) Get-EXORecipient -ResultSize Unlimited -Filter {RecipientTypeDetails -eq 'UserMailbox'} | Select-Object 'PrimarySmtpAddress', 'EmailAddresses'| ConvertTo-Json | Out-File -Encoding utf8 -FilePath 'o365.json'")
+print("4) Copy the o365.json file to the working directory of this application")
+print("5) Once the file is present, press any key")
+input()
+
+print(" ")
+
+print("You are going to be prompted for a user base, this should be formatted like an LDAP search query")
+print("For example, if your OU with all required users is:")
+print("example.local > OU1 > OU2 > Users")
+print("... your Search Base would be:")
+print("OU=OU2,OU=OU1,DC=example,DC=local")
+
+print(" ")
 
 root = tk.Tk()
 root.withdraw()
@@ -117,5 +135,6 @@ if o365usermismatchcount == 0:
     reportdata += "No missing users" + "\n"
 
 
-
+print(" ")
+print("[COMPLETE] A report of this data will be generated in the working directory")
 genReport(reportdata)
