@@ -36,7 +36,7 @@ print("1) Open Powershell")
 print("2) Connect-ExchangeOnline")
 print("3) Get-EXORecipient -ResultSize Unlimited -Filter {RecipientTypeDetails -eq 'UserMailbox'} | Select-Object 'PrimarySmtpAddress', 'EmailAddresses'| ConvertTo-Json | Out-File -Encoding utf8 -FilePath 'o365.json'")
 print("4) Copy the o365.json file to the working directory of this application")
-print("5) Once the file is present, press any key")
+print("5) Once the file is present, press Enter")
 input()
 
 print(" ")
