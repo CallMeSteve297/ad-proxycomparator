@@ -2,7 +2,6 @@ import subprocess
 import os
 import json
 import datetime
-import csv
 import tkinter as tk
 from tkinter import simpledialog
 import sys
