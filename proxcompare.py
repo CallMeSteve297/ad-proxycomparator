@@ -51,7 +51,7 @@ print(" ")
 
 root = tk.Tk()
 root.withdraw()
-proxyinput = simpledialog.askstring(title="Search Base", prompt="Please enter search base")
+proxyinput = simpledialog.askstring(title="Search Base", prompt="Please enter search base\t\t\t")
 
 if proxyinput is None:
     sys.exit(1)
