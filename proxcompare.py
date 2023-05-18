@@ -6,6 +6,8 @@ import tkinter as tk
 from tkinter import simpledialog
 import sys
 
+
+
 # Obtaining Timestamp
 now = datetime.datetime.now()
 timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
@@ -209,9 +211,14 @@ else:
         htmlPH_usercompare365 += '<tr><td>' + result + '</td></tr>'
     htmlPH_usercompare365 += htmlTABLEEND
 
+currentcd = os.getcwd()
+os.chdir(sys._MEIPASS)
+
 
 with open("assets/htmlreport/report-template.html", 'r') as file:
     reporttemplate = file.read()
+
+os.chdir(currentcd)
 
 finalreport = reporttemplate.replace("##proxycompare_adto365##",htmlPH_proxycompare_adto365).replace("##proxycompare_365toad##",htmlPH_proxycompare_365toad).replace("##usercomparead##",htmlPH_usercomparead).replace("##usercompare365##",htmlPH_usercompare365)
 
