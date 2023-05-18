@@ -66,6 +66,10 @@ adusermismatchcount = 0
 o365usermatch = []
 o365usermismatchcount = 0
 
+htmlreportADMISMATCH = []
+htmlreportO365MISMATCH = []
+htmlreportUSERO365MISMATCH = []
+htmlreportUSERADMISMATCH = []
 
 
 with open('o365.json', 'r') as f:
@@ -94,11 +98,15 @@ for aduser in userproxys:
             for adproxy in adproxys:
                 if not adproxy in o365user["EmailAddresses"]:
                     reportdata += "[MISMATCH][AD] UPN: " + aduser['UserPrincipalName'] + " | Address: " + adproxy + "\n"
+                    notfoundusr = [aduser['UserPrincipalName'],adproxy]
+                    htmlreportADMISMATCH.append(notfoundusr)
                     print("AD Proxy", adproxy, "not in O365")
             
             for o365address in o365user["EmailAddresses"]:
                 if not o365address in adproxys:
                     reportdata += "[MISMATCH][O365] UPN: " + aduser['UserPrincipalName'] + " | Address: " + o365address + "\n"
+                    notfoundusr = [aduser['UserPrincipalName'],o365address]
+                    htmlreportO365MISMATCH.append(notfoundusr)
                     print("O365 Proxy", o365address, "not in AD")
             
             reportdata += "========================\n"
@@ -114,6 +122,7 @@ reportdata += "__________________________\n"
 for aduser in userproxys:
     if not aduser['UserPrincipalName'] in adusermatch:
         reportdata += "[NO MATCH][AD] UPN: " + aduser['UserPrincipalName'] + "\n"
+        htmlreportUSERADMISMATCH.append(aduser['UserPrincipalName'])
         print("[IN AD][NOT IN O365]", aduser['UserPrincipalName'])
         adusermismatchcount += 1
 if adusermismatchcount == 0:
@@ -128,6 +137,7 @@ print(" ")
 for o365user in o365usersproxys:
     if not o365user['PrimarySmtpAddress'] in o365usermatch:
         reportdata += "[NO MATCH][AD] UPN: " + o365user['PrimarySmtpAddress'] + "\n"
+        htmlreportUSERO365MISMATCH.append(o365user['PrimarySmtpAddress'])
         print("[IN O365][NOT IN AD]", o365user['PrimarySmtpAddress'])
         o365usermismatchcount += 1
 if o365usermismatchcount == 0:
@@ -137,3 +147,74 @@ if o365usermismatchcount == 0:
 print(" ")
 print("[COMPLETE] A report of this data will be generated in the working directory")
 genReport(reportdata)
+
+# Begin HTML Generation
+htmlPH_proxycompare_adto365 = ""
+htmlPH_proxycompare_365toad = ""
+htmlPH_usercomparead = ""
+htmlPH_usercompare365 = ""
+
+htmlNORESULTS = '''
+<div class="card bg-light">
+    <div class="card-body">
+        <p class="text-center text-secondary" style="margin-bottom: 0px;">
+            No results found
+        </p>
+    </div>
+</div>
+'''
+
+htmlTABLESTART = '''
+<table class="table table-bordered">
+    <tbody>
+'''
+
+htmlTABLEEND = '''
+    </tbody>
+</table>
+'''
+
+if not htmlreportADMISMATCH:
+    htmlPH_proxycompare_adto365 = htmlNORESULTS
+else:
+    htmlPH_proxycompare_adto365 += htmlTABLESTART
+    for result in htmlreportADMISMATCH:
+        htmlPH_proxycompare_adto365 += '<tr><td>' + result[0] + '</td><td>' + result[1] + '</td></tr>'
+    htmlPH_proxycompare_adto365 += htmlTABLEEND
+
+
+if not htmlreportO365MISMATCH:
+    htmlPH_proxycompare_365toad = htmlNORESULTS
+else:
+    htmlPH_proxycompare_365toad += htmlTABLESTART
+    for result in htmlreportO365MISMATCH:
+        htmlPH_proxycompare_365toad += '<tr><td>' + result[0] + '</td><td>' + result[1] + '</td></tr>'
+    htmlPH_proxycompare_365toad += htmlTABLEEND
+
+
+if not htmlreportUSERADMISMATCH:
+    htmlPH_usercomparead = htmlNORESULTS
+else:
+    htmlPH_usercomparead += htmlTABLESTART
+    for result in htmlreportUSERADMISMATCH:
+        htmlPH_usercomparead += '<tr><td>' + result + '</td></tr>'
+    htmlPH_usercomparead += htmlTABLEEND
+
+
+if not htmlreportUSERO365MISMATCH:
+    htmlPH_usercompare365 = htmlNORESULTS
+else:
+    htmlPH_usercompare365 += htmlTABLESTART
+    for result in htmlreportUSERO365MISMATCH:
+        htmlPH_usercompare365 += '<tr><td>' + result + '</td></tr>'
+    htmlPH_usercompare365 += htmlTABLEEND
+
+
+with open("assets/htmlreport/report-template.html", 'r') as file:
+    reporttemplate = file.read()
+
+finalreport = reporttemplate.replace("##proxycompare_adto365##",htmlPH_proxycompare_adto365).replace("##proxycompare_365toad##",htmlPH_proxycompare_365toad).replace("##usercomparead##",htmlPH_usercomparead).replace("##usercompare365##",htmlPH_usercompare365)
+
+htmlname = "proxyreport_" + timestamp + ".html"
+with open(htmlname, 'w') as file:
+    file.write(finalreport)
