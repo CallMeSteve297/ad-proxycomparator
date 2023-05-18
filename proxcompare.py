@@ -53,6 +53,7 @@ root.withdraw()
 proxyinput = simpledialog.askstring(title="Search Base", prompt="Please enter search base\t\t\t")
 
 if proxyinput is None:
+    print("[FATAL] No Search Base")
     sys.exit(1)
 else:
     proxysearchbase = proxyinput
@@ -144,8 +145,7 @@ if o365usermismatchcount == 0:
     reportdata += "No missing users" + "\n"
 
 
-print(" ")
-print("[COMPLETE] A report of this data will be generated in the working directory")
+
 genReport(reportdata)
 
 # Begin HTML Generation
@@ -218,3 +218,6 @@ finalreport = reporttemplate.replace("##proxycompare_adto365##",htmlPH_proxycomp
 htmlname = "proxyreport_" + timestamp + ".html"
 with open(htmlname, 'w') as file:
     file.write(finalreport)
+
+print(" ")
+print("[COMPLETE] A report of this data will be generated in the working directory")
